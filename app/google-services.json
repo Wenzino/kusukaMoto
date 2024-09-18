@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "876356170044",
+    "project_id": "kusukamoto-563fe",
+    "storage_bucket": "kusukamoto-563fe.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:876356170044:android:f18bf02853eb648451ee39",
+        "android_client_info": {
+          "package_name": "com.example.kusukamoto"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIs-IOZSs0khZmuI5ghSnYL5oXQ2WyiMY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

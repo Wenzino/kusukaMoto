@@ -68,9 +68,9 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val navController = rememberNavController()
 
-                    WelcomeScreen(navController = navController, onGoogleSignInClick = {
+                    /*WelcomeScreen(navController = navController, onGoogleSignInClick = {
                         initiateGoogleSignIn()
-                    })
+                    })*/
 
                     NavGraph(navController = navController)
                 }

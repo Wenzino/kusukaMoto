@@ -1,5 +1,4 @@
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -16,6 +15,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.kusukamoto.R
 import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,7 +60,14 @@ fun CreateAccountScreen(navController: NavController) {
             label = { Text(text = "Nome") },
             modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color(0xFF142D55)
+                focusedIndicatorColor = Color(0xFF142D55),
+                unfocusedIndicatorColor = Color.Gray,
+                focusedContainerColor = Color.White,  // Fundo branco para evitar interferência do tema escuro
+                unfocusedContainerColor = Color.White, // Fundo branco quando desfocado
+                focusedTextColor = Color.Black,  // Texto preto em foco
+                unfocusedTextColor = Color.Black, // Texto preto quando desfocado
+                focusedLabelColor = Color(0xFFFF6F61),  // Label focado
+                unfocusedLabelColor = Color.Gray  // Label desfocado
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -72,7 +79,14 @@ fun CreateAccountScreen(navController: NavController) {
             label = { Text(text = "Email") },
             modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color(0xFF142D55)
+                focusedIndicatorColor = Color(0xFF142D55),
+                unfocusedIndicatorColor = Color.Gray,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Color(0xFFFF6F61),
+                unfocusedLabelColor = Color.Gray
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -85,7 +99,14 @@ fun CreateAccountScreen(navController: NavController) {
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color(0xFF142D55)
+                focusedIndicatorColor = Color(0xFF142D55),
+                unfocusedIndicatorColor = Color.Gray,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Color(0xFFFF6F61),
+                unfocusedLabelColor = Color.Gray
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -98,7 +119,14 @@ fun CreateAccountScreen(navController: NavController) {
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color(0xFF142D55)
+                focusedIndicatorColor = Color(0xFF142D55),
+                unfocusedIndicatorColor = Color.Gray,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Color(0xFFFF6F61),
+                unfocusedLabelColor = Color.Gray
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -110,7 +138,14 @@ fun CreateAccountScreen(navController: NavController) {
             label = { Text(text = "Contacto") },
             modifier = Modifier.fillMaxWidth(),
             colors = TextFieldDefaults.colors(
-                focusedIndicatorColor = Color(0xFF142D55)
+                focusedIndicatorColor = Color(0xFF142D55),
+                unfocusedIndicatorColor = Color.Gray,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedTextColor = Color.Black,
+                unfocusedTextColor = Color.Black,
+                focusedLabelColor = Color(0xFFFF6F61),
+                unfocusedLabelColor = Color.Gray
             )
         )
         Spacer(modifier = Modifier.height(24.dp))

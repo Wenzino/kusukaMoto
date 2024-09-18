@@ -34,15 +34,16 @@ class AuthViewModel() : ViewModel() {
     }
 
     private fun saveUserDataToFirestore(user: FirebaseUser) {
-        val userData = mapOf(
+        val userData = hashMapOf(
             "uid" to user.uid,
             "name" to user.displayName,
             "email" to user.email,
             "photoUrl" to user.photoUrl.toString()
         )
 
-        firestore.collection("users")
-            .document(user.uid).set(userData).addOnSuccessListener {
+        firestore.collection("users").document(user.uid)
+            .set(userData)
+            .addOnSuccessListener {
                 Log.d("Firestore", "Dados do usuário armazenados com sucesso!")
             }.addOnFailureListener { e ->
                 Log.e("Firestore", "Erro ao armazenar dados no Firestore", e)
@@ -71,7 +72,7 @@ class AuthViewModel() : ViewModel() {
 
     // Nova função sobrecarregada que aceita nome e contato
     private fun saveUserDataToFirestore(user: FirebaseUser, name: String, contact: String) {
-        val userData = mapOf(
+        val userData = hashMapOf(
             "uid" to user.uid,
             "name" to name,
             "email" to user.email,
@@ -122,6 +123,33 @@ class AuthViewModel() : ViewModel() {
             }
             .addOnFailureListener { e ->
                 Log.e("Firestore", "Erro ao salvar o agendamento", e)
+            }
+    }
+
+    fun loginWithEmailOrUsername(input: String, password: String, navController: NavController, onError: (String) -> Unit) {
+        val queryField = if (android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches()) {
+            "email"  // Se for email
+        } else {
+            "name"   // Se for username
+        }
+
+        firestore.collection("users")
+            .whereEqualTo(queryField, input)
+            .get()
+            .addOnSuccessListener { documents ->
+                if (!documents.isEmpty) {
+                    val userDoc = documents.documents[0]
+                    if (userDoc.exists() && userDoc.getString("password") == password) {
+                        navController.navigate("home")
+                    } else {
+                        onError("Credenciais inválidas")
+                    }
+                } else {
+                    onError("Usuário não encontrado")
+                }
+            }
+            .addOnFailureListener {
+                onError("Erro ao buscar dados no Firestore")
             }
     }
 }

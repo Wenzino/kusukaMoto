@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.kusukamoto.R
 
@@ -36,8 +37,11 @@ import com.example.kusukamoto.R
 @Composable
 fun LoginScreen(navController: NavController) {
     // Declarando estados para armazenar o texto dos campos
-    val email = remember { mutableStateOf("") }
+    val emailOrUsername = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
+    val loginError = remember { mutableStateOf<String?>(null) }
+
+    val viewModel: AuthViewModel = viewModel()
 
     Column(
         modifier = Modifier
@@ -69,9 +73,9 @@ fun LoginScreen(navController: NavController) {
 
         // Email input
         TextField(
-            value = email.value,
-            onValueChange = { email.value = it },
-            label = { Text(text = "Email", color = Color(0xFFFF6F61)) },
+            value = emailOrUsername.value,
+            onValueChange = { emailOrUsername.value = it },
+            label = { Text(text = "Nome de usuario ou email", color = Color(0xFFFF6F61)) },
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.email),
@@ -117,15 +121,17 @@ fun LoginScreen(navController: NavController) {
         // Login Button
         Button(
             onClick = {
-                if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
-                    // Verificar as credenciais e navegar para HomeScreen se forem válidas
-                    if (email.value == "muradelobo@gmail.com" && password.value == "123456") {
+                if (emailOrUsername.value.isNotEmpty() && password.value.isNotEmpty()) {
+                    viewModel.loginWithEmailOrUsername(
+                        emailOrUsername.value,
+                        password.value,
+                        navController
+                    ) { error ->
+                        loginError.value = error
                         navController.navigate("home")
-                    } else {
-                        // Mostrar uma mensagem de erro ou feedback se necessário
                     }
                 } else {
-                    // Mostrar uma mensagem de erro se os campos estiverem vazios
+                    loginError.value = "Todos os campos devem ser preenchidos!"
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E0C6)),
@@ -137,6 +143,12 @@ fun LoginScreen(navController: NavController) {
                 color = Color.White
             )
         }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        loginError.value?.let {
+            Text(text = it, color = Color.Red, fontSize = 14.sp)
+        }
+
         Spacer(modifier = Modifier.height(16.dp))
 
         // Link para criar conta

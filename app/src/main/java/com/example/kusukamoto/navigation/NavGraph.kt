@@ -1,27 +1,25 @@
 package com.example.kusukamoto.navigation
 
+import AgendamentoScreen
+import CreateAccountScreen
+import HomeScreen
+import LoginScreen
+import ProfileScreen
+import Service
+import ServiceInfoScreen
+import WelcomeScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-//import navArgument
 import androidx.navigation.NavType
-//import com.example.kusukamoto.screens.Service
-import Service
-import ServiceInfoScreen
 import com.example.kusukamoto.screens.Iniciar
-import HomeScreen
-import LoginScreen
-import CreateAccountScreen
-import AgendamentoScreen
-import ProfileScreen
-import WelcomeScreen
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.navigation.navArgument
 import com.example.kusukamoto.MainActivity
 import com.example.kusukamoto.screens.EditProfileScreen
 import androidx.compose.ui.platform.LocalContext
+import androidx.annotation.RequiresApi
+import android.os.Build
+import androidx.navigation.navArgument
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -39,21 +37,28 @@ fun NavGraph(navController: NavHostController) {
                 context.initiateGoogleSignIn()
             })
         }
+
         // Tela de criação de conta
-        composable("create_account") { CreateAccountScreen(navController = navController) }
+        composable("create_account") {
+            CreateAccountScreen(navController = navController)
+        }
 
         // Tela inicial (Home)
-        composable("home") { HomeScreen(navController = navController) }
+        composable("home") {
+            HomeScreen(navController = navController)
+        }
 
         // Tela inicial (Iniciar)
-        composable("iniciar") { Iniciar(navController = navController) }
+        composable("iniciar") {
+            Iniciar(navController = navController)
+        }
 
         // Tela de informações do serviço com argumento
         composable(
             "serviceInfo/{serviceName}",
             arguments = listOf(navArgument("serviceName") { type = NavType.StringType })
         ) { backStackEntry ->
-            val serviceName = backStackEntry.arguments?.getString("serviceName")
+            val serviceName = backStackEntry.arguments?.getString("serviceName") ?: "Serviço Não Encontrado"
 
             val serviceInfo = when (serviceName) {
                 "Lavagem Externa" -> Service(
@@ -147,6 +152,5 @@ fun NavGraph(navController: NavHostController) {
                 }
             )
         }
-
     }
 }

@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.kusukamoto.R
 
@@ -21,8 +22,11 @@ import com.example.kusukamoto.R
 @Composable
 fun LoginScreen(navController: NavController, onGoogleSignInClick: () -> Unit) {
     // Declarando estados para armazenar o texto dos campos
-    val email = remember { mutableStateOf("") }
+    val emailOrUsername = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
+    val loginError = remember { mutableStateOf<String?>(null) }
+
+    val viewModel: AuthViewModel = viewModel()
 
     Column(
         modifier = Modifier
@@ -49,9 +53,9 @@ fun LoginScreen(navController: NavController, onGoogleSignInClick: () -> Unit) {
 
         // Email input
         TextField(
-            value = email.value,
-            onValueChange = { email.value = it },
-            label = { Text(text = "Email") },
+            value = emailOrUsername.value,
+            onValueChange = { emailOrUsername.value = it },
+            label = { Text(text = "Nome de usuario ou email") },
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.email),
@@ -113,10 +117,17 @@ fun LoginScreen(navController: NavController, onGoogleSignInClick: () -> Unit) {
         // Login Button
         Button(
             onClick = {
-                if (email.value.isNotEmpty() && password.value.isNotEmpty()) {
-                    if (email.value == "muradelobo@gmail.com" && password.value == "123456") {
+                if (emailOrUsername.value.isNotEmpty() && password.value.isNotEmpty()) {
+                    viewModel.loginWithEmailOrUsername(
+                        emailOrUsername.value,
+                        password.value,
+                        navController
+                    ) { error ->
+                        loginError.value = error
                         navController.navigate("home")
                     }
+                } else {
+                    loginError.value = "Todos os campos devem ser preenchidos!"
                 }
             },
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E0C6)),
@@ -142,6 +153,12 @@ fun LoginScreen(navController: NavController, onGoogleSignInClick: () -> Unit) {
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(text = "Continuar com Google", color = Color.Black)
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        loginError.value?.let {
+            Text(text = it, color = Color.Red, fontSize = 14.sp)
         }
 
         Spacer(modifier = Modifier.height(16.dp))

@@ -125,7 +125,6 @@ fun LoginScreen(navController: NavController, onGoogleSignInClick: () -> Unit) {
                         navController
                     ) { error ->
                         loginError.value = error
-                        navController.navigate("home")
                     }
                 } else {
                     loginError.value = "Todos os campos devem ser preenchidos!"

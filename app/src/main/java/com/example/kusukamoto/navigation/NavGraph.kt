@@ -26,7 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavGraph(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = "home") {
+    NavHost(navController = navController, startDestination = "iniciar") {
         // Tela de boas-vindas
         composable("welcome") {
             WelcomeScreen(navController = navController)

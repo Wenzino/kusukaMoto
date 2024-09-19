@@ -1,3 +1,4 @@
+import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -10,8 +11,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -20,18 +23,22 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.kusukamoto.R
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import java.net.URLEncoder
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavHostController) {
     val viewModel: AuthViewModel = viewModel()
     val userName = remember { mutableStateOf("Carregando") }
+    val userPhotoUrl = remember { mutableStateOf("") }
     val selectedServices = remember { mutableStateOf(setOf<String>()) }
 
     // Fetch dados do usuário ao carregar a tela
     LaunchedEffect(Unit) {
-        viewModel.getUserData { name ->
+        viewModel.getUserData { name, photoUrl ->
             userName.value = name
+            userPhotoUrl.value = photoUrl
         }
     }
 
@@ -84,14 +91,22 @@ fun HomeScreen(navController: NavHostController) {
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.weight(1f))
-                    Image(
-                        painter = painterResource(id = R.drawable.usericon),
-                        contentDescription = "User Avatar",
+
+                    // Contém o fundo amarelo e a imagem circular
+                    Box(
                         modifier = Modifier
-                            .size(50.dp)
-                            .background(Color(0xFFFFCC33), shape = CircleShape)
-                            .padding(8.dp)
-                    )
+                            .size(50.dp) // Tamanho do círculo
+                            .background(Color(0xFFFFCC33), shape = CircleShape) // Fundo amarelo
+                    ) {
+                        AsyncImage(
+                            model = userPhotoUrl.value.ifEmpty { R.drawable.usericon },
+                            contentDescription = "User Avatar",
+                            contentScale = ContentScale.Crop, // Preenche o círculo
+                            modifier = Modifier
+                                .fillMaxSize() // Preenche todo o tamanho da Box
+                                .clip(CircleShape) // Corta a imagem no formato circular
+                        )
+                    }
                 }
 
                 Text(
@@ -186,22 +201,28 @@ fun HomeScreen(navController: NavHostController) {
                 Button(
                     onClick = {
                         val selectedServicesList = selectedServices.value.toList()
-                        val total = selectedServicesList.sumBy { service ->
+                        val total = selectedServicesList.sumOf { service ->
                             when (service) {
                                 "Lavagem Externa" -> 150
                                 "Lavagem Interna" -> 250
                                 "Lavagem Detalhada" -> 350
-                                "Polimento e Enceramento" -> 450
-                                "Limpeza de Estofados e Carpetes" -> 200
-                                "Lavagem de Motor" -> 550
+                                "Polimento Encerramento" -> 450
+                                "Limpeza Estofados Carpetes" -> 200
+                                "Lavagem Motor" -> 550
                                 else -> 0
-                            }
-                        }
+                            }.toLong()
+                        }.toInt()
                         totalPrice.value = total
 
                         // Passando os serviços selecionados e o total para a tela de agendamento
                         val selectedServicesString = selectedServices.value.joinToString(",")
-                        navController.navigate("agendamento/${selectedServicesString}?totalPrice=${totalPrice.value}")
+                        Log.d(
+                            "Navigation",
+                            "Navigating to agendamento with: $selectedServicesString and totalPrice: ${totalPrice.value}"
+                        )
+
+                        val encodedServices = URLEncoder.encode(selectedServicesString, "UTF-8")
+                        navController.navigate("agendamento/$encodedServices?totalPrice=${totalPrice.value}")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E0C6)),
                     shape = RoundedCornerShape(16.dp),

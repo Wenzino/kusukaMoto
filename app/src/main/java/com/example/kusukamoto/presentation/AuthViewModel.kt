@@ -102,19 +102,20 @@ class AuthViewModel() : ViewModel() {
             }
     }
 
-    fun getUserData(onResult: (String) -> Unit) {
+    fun getUserData(onResult: (String, String) -> Unit) {
         val user = auth.currentUser
         if (user != null) {
             firestore.collection("users").document(user.uid).get()
                 .addOnSuccessListener { document ->
                     val name = document.getString("name") ?: "Usuário"
-                    onResult(name)
+                    val photoUrl = document.getString("photoUrl") ?: ""
+                    onResult(name, photoUrl)
                 }
                 .addOnFailureListener {
-                    onResult("Erro ao carregar nome")
+                    onResult("Erro ao carregar nome", "")
                 }
         } else {
-            onResult("Usuário não logado")
+            onResult("Usuário não logado", "")
         }
     }
 

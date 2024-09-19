@@ -15,6 +15,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.kusukamoto.R
 
@@ -124,7 +125,6 @@ fun LoginScreen(navController: NavController, onGoogleSignInClick: () -> Unit) {
                         navController
                     ) { error ->
                         loginError.value = error
-                        navController.navigate("home")
                     }
                 } else {
                     loginError.value = "Todos os campos devem ser preenchidos!"

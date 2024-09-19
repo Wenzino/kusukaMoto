@@ -127,29 +127,45 @@ class AuthViewModel() : ViewModel() {
     }
 
     fun loginWithEmailOrUsername(input: String, password: String, navController: NavController, onError: (String) -> Unit) {
-        val queryField = if (android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches()) {
-            "email"  // Se for email
+        // Se for email, tente fazer login diretamente com o Firebase Auth
+        if (android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches()) {
+            signInWithEmail(input, password, navController, onError)
         } else {
-            "name"   // Se for username
-        }
+            // Se for username, busque o email correspondente no Firestore
+            firestore.collection("users")
+                .whereEqualTo("name", input)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (!documents.isEmpty) {
+                        val userDoc = documents.documents[0]
+                        val email = userDoc.getString("email")
 
-        firestore.collection("users")
-            .whereEqualTo(queryField, input)
-            .get()
-            .addOnSuccessListener { documents ->
-                if (!documents.isEmpty) {
-                    val userDoc = documents.documents[0]
-                    if (userDoc.exists() && userDoc.getString("password") == password) {
-                        navController.navigate("home")
+                        if (email != null) {
+                            signInWithEmail(email, password, navController, onError)
+                        } else {
+                            onError("Erro ao buscar o email do usuário")
+                        }
                     } else {
-                        onError("Credenciais inválidas")
+                        onError("Usuário não encontrado")
                     }
+                }
+                .addOnFailureListener {
+                    onError("Erro ao buscar dados no Firestore")
+                }
+        }
+    }
+
+    private fun signInWithEmail(email: String, password: String, navController: NavController, onError: (String) -> Unit) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    navController.navigate("home")
                 } else {
-                    onError("Usuário não encontrado")
+                    onError("Credenciais inválidas")
                 }
             }
             .addOnFailureListener {
-                onError("Erro ao buscar dados no Firestore")
+                onError("Erro ao fazer login com o Firebase Auth")
             }
     }
 }

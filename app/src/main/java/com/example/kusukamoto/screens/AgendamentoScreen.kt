@@ -13,13 +13,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.NavBackStackEntry
 import com.example.kusukamoto.R
 import java.util.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 
-// Exemplo de dados de serviço
+
 data class Service(
     val name: String,
     val description: String,
@@ -33,6 +32,12 @@ fun AgendamentoScreen(
     selectedServices: List<Service>,
     totalPrice: Int
 ) {
+    // Verificação dos dados recebidos
+    if (selectedServices.isEmpty()) {
+        Text("Nenhum serviço selecionado")
+        return
+    }
+
     var selectedDate by remember { mutableStateOf("Escolha uma data") }
     var selectedTime by remember { mutableStateOf("Escolha uma hora") }
     var selectedCarType by remember { mutableStateOf("Tipo de carro") }
@@ -70,7 +75,7 @@ fun AgendamentoScreen(
                     .background(Color(0xFFF5F5F5))
                     .padding(paddingValues)
                     .padding(16.dp)
-                    .verticalScroll(scrollState), // Adicionando scroll
+                    .verticalScroll(scrollState),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
@@ -100,7 +105,7 @@ fun AgendamentoScreen(
                             text = service.description,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Normal,
-                            color = Color.Gray,
+                            color = Color.Gray
                         )
                     }
                 }
@@ -188,6 +193,11 @@ fun AgendamentoScreen(
                 // Botão de agendar
                 Button(
                     onClick = {
+                        // Verificar se os dados estão preenchidos
+                        if (selectedDate == "Escolha uma data" || selectedTime == "Escolha uma hora" || selectedCarType == "Tipo de carro") {
+                            // Mostrar um alerta ou mensagem de erro
+                            return@Button
+                        }
                         navController.navigate("payment")
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF00E0C6)),
@@ -202,6 +212,7 @@ fun AgendamentoScreen(
         }
     )
 }
+
 
 // Exemplo de lista de serviços
 val services = listOf(

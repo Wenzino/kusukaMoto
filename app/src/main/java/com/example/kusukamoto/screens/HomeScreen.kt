@@ -41,7 +41,7 @@ fun HomeScreen(navController: NavHostController) {
         }
     ) { paddingValues ->
 
-        // Permite o scroll vertical
+        // Permite o scroll apenas abaixo de um determinado ponto
         val scrollState = rememberScrollState()
 
         Box(
@@ -65,12 +65,12 @@ fun HomeScreen(navController: NavHostController) {
 
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
-                    .verticalScroll(scrollState), // Adiciona scroll aqui
+                    .fillMaxWidth()
+                    .padding(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
+                // Parte superior estática
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -115,6 +115,7 @@ fun HomeScreen(navController: NavHostController) {
                         .fillMaxWidth()
                         .padding(top = 45.dp, bottom = 16.dp)
                 )
+
                 Text(
                     text = "Marque o/os serviço/s pretendido/s",
                     fontSize = 16.sp,
@@ -126,21 +127,23 @@ fun HomeScreen(navController: NavHostController) {
                         .padding(top = 0.dp, bottom = 16.dp)
                 )
 
-
-                val services = listOf(
-                    "Lavagem Externa" to R.drawable.exterior,
-                    "Lavagem Interna" to R.drawable.interna,
-                    "Lavagem Detalhada" to R.drawable.detalhada,
-                    "Polimento Encerramento" to R.drawable.polimento,
-                    "Limpeza Estofados Carpetes" to R.drawable.carpete,
-                    "Lavagem Motor" to R.drawable.motor
-                )
-
+                // Parte que permite scroll
                 Column(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scrollState) // Adiciona scroll aqui
                 ) {
+                    val services = listOf(
+                        "Lavagem Externa" to R.drawable.exterior,
+                        "Lavagem Interna" to R.drawable.interna,
+                        "Lavagem Detalhada" to R.drawable.detalhada,
+                        "Polimento Encerramento" to R.drawable.polimento,
+                        "Limpeza Estofados Carpetes" to R.drawable.carpete,
+                        "Lavagem Motor" to R.drawable.motor
+                    )
+
                     for (i in services.indices step 2) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -180,7 +183,7 @@ fun HomeScreen(navController: NavHostController) {
                     }
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 val totalPrice = remember { mutableStateOf(0) }
                 Button(

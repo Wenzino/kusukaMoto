@@ -16,6 +16,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavBackStackEntry
 import com.example.kusukamoto.R
 import java.util.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 
 // Exemplo de dados de serviço
 data class Service(
@@ -36,6 +38,8 @@ fun AgendamentoScreen(
     var selectedCarType by remember { mutableStateOf("Tipo de carro") }
 
     val totalValue = selectedServices.sumOf { it.price }
+
+    val scrollState = rememberScrollState()
 
     Scaffold(
         topBar = {
@@ -65,7 +69,8 @@ fun AgendamentoScreen(
                     .fillMaxSize()
                     .background(Color(0xFFF5F5F5))
                     .padding(paddingValues)
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .verticalScroll(scrollState), // Adicionando scroll
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(

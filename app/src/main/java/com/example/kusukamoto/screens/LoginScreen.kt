@@ -26,6 +26,7 @@ fun LoginScreen(navController: NavController, onGoogleSignInClick: () -> Unit) {
     val emailOrUsername = remember { mutableStateOf("") }
     val password = remember { mutableStateOf("") }
     val loginError = remember { mutableStateOf<String?>(null) }
+    var passwordVisibility by remember { mutableStateOf(false) }
 
     val viewModel: AuthViewModel = viewModel()
 

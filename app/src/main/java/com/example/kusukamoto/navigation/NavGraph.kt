@@ -14,6 +14,7 @@ import HomeScreen
 import LoginScreen
 import CreateAccountScreen
 import AgendamentoScreen
+import AuthViewModel
 import ProfileScreen
 import WelcomeScreen
 import android.os.Build
@@ -22,10 +23,14 @@ import androidx.navigation.navArgument
 import com.example.kusukamoto.MainActivity
 import com.example.kusukamoto.screens.EditProfileScreen
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun NavGraph(navController: NavHostController) {
+
+    val viewModel: AuthViewModel = viewModel()
+
     NavHost(navController = navController, startDestination = "iniciar") {
         // Tela de boas-vindas
         composable("welcome") {
@@ -137,13 +142,14 @@ fun NavGraph(navController: NavHostController) {
             ProfileScreen(
                 navController = navController,
                 onAccountClick = {
-                    // Navegar para outra tela se necessário
+                    navController.navigate("account")
                 },
                 onEditProfileClick = {
                     navController.navigate("edit_profile")
                 },
                 onLogoutClick = {
                     // Lógica para logout
+                    viewModel.logout(navController)
                 }
             )
         }

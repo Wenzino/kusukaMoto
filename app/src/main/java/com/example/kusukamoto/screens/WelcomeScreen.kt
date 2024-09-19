@@ -25,7 +25,7 @@ import androidx.navigation.NavController
 import com.example.kusukamoto.R
 
 @Composable
-fun WelcomeScreen(navController: NavController, onGoogleSignInClick: () -> Unit) {
+fun WelcomeScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,21 +76,6 @@ fun WelcomeScreen(navController: NavController, onGoogleSignInClick: () -> Unit)
         ) {
             Text(
                 text = "Entrar",
-                color = Color(0xFF142D55)
-            )
-        }
-
-        Button(
-            onClick = { onGoogleSignInClick() },
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4285F4)),
-            shape = RoundedCornerShape(8.dp),
-            modifier = Modifier
-                .fillMaxWidth(0.7f)
-                .fillMaxHeight(0.15f)
-                .padding(horizontal = 8.dp)
-        ) {
-            Text(
-                text = "Login com Google",
                 color = Color(0xFF142D55)
             )
         }

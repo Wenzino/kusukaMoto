@@ -67,11 +67,6 @@ class MainActivity : ComponentActivity() {
                     color = Color.White
                 ) {
                     val navController = rememberNavController()
-
-//                    WelcomeScreen(navController = navController, onGoogleSignInClick = {
-//                        initiateGoogleSignIn()
-//                    })
-
                     NavGraph(navController = navController)
                 }
             }

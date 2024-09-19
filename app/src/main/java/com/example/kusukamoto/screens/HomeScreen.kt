@@ -2,8 +2,10 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,7 +24,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    val viewModel:AuthViewModel = viewModel()
+    val viewModel: AuthViewModel = viewModel()
     val userName = remember { mutableStateOf("Carregando") }
     val selectedServices = remember { mutableStateOf(setOf<String>()) }
 
@@ -38,6 +40,10 @@ fun HomeScreen(navController: NavHostController) {
             BottomNavigationBar(navController)
         }
     ) { paddingValues ->
+
+        // Permite o scroll vertical
+        val scrollState = rememberScrollState()
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -60,7 +66,8 @@ fun HomeScreen(navController: NavHostController) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .verticalScroll(scrollState), // Adiciona scroll aqui
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
@@ -175,7 +182,7 @@ fun HomeScreen(navController: NavHostController) {
 
                 Spacer(modifier = Modifier.weight(1f))
 
-            val totalPrice = remember { mutableStateOf(0) }
+                val totalPrice = remember { mutableStateOf(0) }
                 Button(
                     onClick = {
                         val selectedServicesList = selectedServices.value.toList()

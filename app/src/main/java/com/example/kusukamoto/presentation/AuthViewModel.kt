@@ -9,6 +9,12 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class AuthViewModel() : ViewModel() {
 
+    data class UserData(
+        val name: String = "",
+        val email: String = "",
+        val photoUrl: String = ""
+    )
+
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
@@ -34,22 +40,29 @@ class AuthViewModel() : ViewModel() {
     }
 
     private fun saveUserDataToFirestore(user: FirebaseUser) {
-        val userData = mapOf(
+        val userData = hashMapOf(
             "uid" to user.uid,
             "name" to user.displayName,
             "email" to user.email,
             "photoUrl" to user.photoUrl.toString()
         )
 
-        firestore.collection("users")
-            .document(user.uid).set(userData).addOnSuccessListener {
+        firestore.collection("users").document(user.uid)
+            .set(userData)
+            .addOnSuccessListener {
                 Log.d("Firestore", "Dados do usuário armazenados com sucesso!")
             }.addOnFailureListener { e ->
                 Log.e("Firestore", "Erro ao armazenar dados no Firestore", e)
             }
     }
 
-    fun createUserWithEmailAndPassword(email: String, password: String, name: String, contact: String, navController: NavController) {
+    fun createUserWithEmailAndPassword(
+        email: String,
+        password: String,
+        name: String,
+        contact: String,
+        navController: NavController
+    ) {
         auth.createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val user = auth.currentUser
@@ -71,7 +84,7 @@ class AuthViewModel() : ViewModel() {
 
     // Nova função sobrecarregada que aceita nome e contato
     private fun saveUserDataToFirestore(user: FirebaseUser, name: String, contact: String) {
-        val userData = mapOf(
+        val userData = hashMapOf(
             "uid" to user.uid,
             "name" to name,
             "email" to user.email,
@@ -89,23 +102,30 @@ class AuthViewModel() : ViewModel() {
             }
     }
 
-    fun getUserData(onResult: (String) -> Unit) {
+    fun getUserData(onResult: (String, String) -> Unit) {
         val user = auth.currentUser
         if (user != null) {
             firestore.collection("users").document(user.uid).get()
                 .addOnSuccessListener { document ->
                     val name = document.getString("name") ?: "Usuário"
-                    onResult(name)
+                    val photoUrl = document.getString("photoUrl") ?: ""
+                    onResult(name, photoUrl)
                 }
                 .addOnFailureListener {
-                    onResult("Erro ao carregar nome")
+                    onResult("Erro ao carregar nome", "")
                 }
         } else {
-            onResult("Usuário não logado")
+            onResult("Usuário não logado", "")
         }
     }
 
-    fun saveAgendamento(userId: String, services: List<Service>, totalPrice: Int, date: String, time: String) {
+    fun saveAgendamento(
+        userId: String,
+        services: List<Service>,
+        totalPrice: Int,
+        date: String,
+        time: String
+    ) {
         val agendamentoData = mapOf(
             "userId" to userId,
             "services" to services.map { it.name },
@@ -123,5 +143,99 @@ class AuthViewModel() : ViewModel() {
             .addOnFailureListener { e ->
                 Log.e("Firestore", "Erro ao salvar o agendamento", e)
             }
+    }
+
+    fun loginWithEmailOrUsername(
+        input: String,
+        password: String,
+        navController: NavController,
+        onError: (String) -> Unit
+    ) {
+        if (android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches()) {
+            // Se for email, tente fazer login diretamente com o Firebase Auth
+            signInWithEmail(input, password, navController, onError)
+        } else {
+            // Se for username, busque o email correspondente no Firestore
+            firestore.collection("users")
+                .whereEqualTo("name", input)
+                .get()
+                .addOnSuccessListener { documents ->
+                    if (documents.isEmpty) {
+                        onError("Usuário não encontrado")
+                    } else {
+                        val userDoc = documents.documents[0]
+                        val email = userDoc.getString("email")
+                        if (email != null) {
+                            signInWithEmail(email, password, navController, onError)
+                        } else {
+                            onError("Erro ao buscar o email do usuário")
+                        }
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.e(
+                        "FirestoreError",
+                        "Erro ao buscar dados no Firestore: ${exception.message}"
+                    )
+                    onError("Erro ao buscar dados no Firestore: ${exception.message}")
+                }
+        }
+    }
+
+    private fun signInWithEmail(
+        email: String,
+        password: String,
+        navController: NavController,
+        onError: (String) -> Unit
+    ) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("Auth", "Login bem-sucedido")
+                    navController.navigate("home")
+                } else {
+                    val exception = task.exception
+                    Log.e("Auth", "Erro ao fazer login com o Firebase Auth", exception)
+                    onError("Credenciais inválidas")
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Auth", "Erro ao fazer login com o Firebase Auth", exception)
+                onError("Erro ao fazer login: ${exception.localizedMessage}")
+            }
+    }
+
+    fun logout(navController: NavController) {
+        auth.signOut() // Desconecta o usuário do Firebase
+        navController.navigate("login") {  // Navega para a tela de login
+            popUpTo("home") {
+                inclusive = true
+            }  // Limpa o histórico para evitar voltar para a tela home
+        }
+    }
+
+    fun getUserDataFromFirestore(onResult: (UserData?) -> Unit) {
+        val user = auth.currentUser
+        if (user != null) {
+            firestore.collection("users").document(user.uid).get()
+                .addOnSuccessListener { document ->
+                    if (document != null) {
+                        val userData = UserData(
+                            name = document.getString("name") ?: "",
+                            email = document.getString("email") ?: "",
+                            photoUrl = document.getString("photoUrl") ?: ""
+                        )
+                        onResult(userData)
+                    } else {
+                        onResult(null)
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("Firestore", "Erro ao carregar dados do usuário", exception)
+                    onResult(null)
+                }
+        } else {
+            onResult(null)
+        }
     }
 }

@@ -1,3 +1,4 @@
+import androidx.compose.runtime.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -23,26 +24,39 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.ContentScale
 import androidx.navigation.compose.rememberNavController
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.example.kusukamoto.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     navController: NavHostController,
-    userName: String = "Murade Lobo",
-    email: String = "muradelobo@gmail.com",
+    viewModel: AuthViewModel = AuthViewModel(),
     onAccountClick: () -> Unit = {},
     onEditProfileClick: () -> Unit = {},
-    onLogoutClick: () -> Unit = {}
+    onLogoutClick: () -> Unit = {viewModel.logout(navController)}
 ) {
+    // Estado para armazenar os dados do usuário
+    var userData by remember { mutableStateOf<AuthViewModel.UserData?>(null) }
+
+    // Carregar dados do Firestore ao iniciar a tela
+    LaunchedEffect(Unit) {
+        viewModel.getUserDataFromFirestore { data ->
+            userData = data
+        }
+    }
+
+    // Exibir a tela de perfil
     Scaffold(
         topBar = {
-            // Top App Bar with Back Arrow
             TopAppBar(
                 title = { Text(text = "") },
                 navigationIcon = {
@@ -50,7 +64,7 @@ fun ProfileScreen(
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.White // Set the color of the back arrow icon
+                            tint = Color.White
                         )
                     }
                 },
@@ -68,118 +82,125 @@ fun ProfileScreen(
                     .background(Color.White) // Set the background color to white
                     .padding(paddingValues)
             ) {
-                // Top section with profile picture and user info
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color(0xFF00E0C6)) // Teal background for profile section
-                        .padding(vertical = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // Profile Picture
-                    Image(
-                        painter = painterResource(id = R.drawable.usericon),
-                        contentDescription = "Profile Picture",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(80.dp)
-                            .clip(CircleShape)
-                    )
-
-                    // User Name
-                    Text(
-                        text = userName,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            color = Color.White
-                        )
-                    )
-
-                    // Email
-                    Text(
-                        text = email,
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = Color.White
-                        )
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Options (Minha Conta, Editar Perfil, Sair)
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    // "Minha Conta" Section
-                    Row(
+                userData?.let { data ->
+                    // Exibir as informações do usuário do Firestore
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onAccountClick() }
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .background(Color(0xFF00E0C6)) // Teal background for profile section
+                            .padding(vertical = 24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.AccountCircle,
-                            contentDescription = "Minha Conta",
-                            modifier = Modifier.size(24.dp),
-                            tint = Color.Black // Set icon color to black
+                        // Foto do usuário
+                        Image(
+                            painter = rememberAsyncImagePainter(data.photoUrl), // Carrega a URL da foto
+                            contentDescription = "Profile Picture",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(80.dp)
+                                .clip(CircleShape)
                         )
-                        Spacer(modifier = Modifier.width(16.dp))
+
+                        // Nome do usuário
                         Text(
-                            text = "Minha conta",
-                            fontSize = 18.sp,
-                            color = Color.Black // Set text color to black
+                            text = data.name,
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 20.sp,
+                                color = Color.White
+                            )
+                        )
+
+                        // Email do usuário
+                        Text(
+                            text = data.email,
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = Color.White
+                            )
                         )
                     }
 
                     Spacer(modifier = Modifier.height(24.dp))
-                    // "Editar Perfil" Section
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onEditProfileClick() }
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = "Editar Perfil",
-                            modifier = Modifier.size(24.dp),
-                            tint = Color.Black // Set icon color to black
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = "Editar perfil",
-                            fontSize = 18.sp,
-                            color = Color.Black // Set text color to black
-                        )
-                    }
 
-                    Spacer(modifier = Modifier.height(24.dp))
-                    // "Sair" Section
-                    Row(
+                    // Opções (Minha Conta, Editar Perfil, Sair)
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { onLogoutClick() }
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                            .padding(horizontal = 16.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.ExitToApp,
-                            contentDescription = "Sair",
-                            modifier = Modifier.size(24.dp),
-                            tint = Color.Black // Set icon color to black
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = "Sair",
-                            fontSize = 18.sp,
-                            color = Color.Black // Set text color to black
-                        )
+                        // Opção "Minha Conta"
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onAccountClick() }
+                                .padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.AccountCircle,
+                                contentDescription = "Minha Conta",
+                                modifier = Modifier.size(24.dp),
+                                tint = Color.Black
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(
+                                text = "Minha conta",
+                                fontSize = 18.sp,
+                                color = Color.Black
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Opção "Editar Perfil"
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onEditProfileClick() }
+                                .padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Edit,
+                                contentDescription = "Editar Perfil",
+                                modifier = Modifier.size(24.dp),
+                                tint = Color.Black
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(
+                                text = "Editar perfil",
+                                fontSize = 18.sp,
+                                color = Color.Black
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // Opção "Sair" que chama a função de logout
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onLogoutClick() }  // Chama a função de logout
+                                .padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.ExitToApp,
+                                contentDescription = "Sair",
+                                modifier = Modifier.size(24.dp),
+                                tint = Color.Black
+                            )
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(
+                                text = "Sair",
+                                fontSize = 18.sp,
+                                color = Color.Black
+                            )
+                        }
                     }
+                } ?: run {
+                    // Caso os dados ainda não tenham sido carregados ou haja erro
+                    Text("Carregando informações do usuário...")
                 }
             }
         }
